@@ -19,3 +19,5 @@ release.properties
 
 /*.json
 /test*
+
+*.patch

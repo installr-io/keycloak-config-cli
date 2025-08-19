@@ -23,16 +23,26 @@ package de.adorsys.keycloak.config;
 import de.adorsys.keycloak.config.properties.ImportConfigProperties;
 import de.adorsys.keycloak.config.properties.KeycloakConfigProperties;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(proxyBeanMethods = false)
 @EnableConfigurationProperties({KeycloakConfigProperties.class, ImportConfigProperties.class})
+@ComponentScan(basePackages = {"de.adorsys.keycloak.config", "io.installr.deployer.keycloak"})
 public class KeycloakConfigApplication {
     public static void main(String[] args) {
-        // https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-application-exit
-        Runtime.getRuntime().exit(
-                SpringApplication.exit(SpringApplication.run(KeycloakConfigApplication.class, args))
+        final WebApplicationType webApplicationType = WebApplicationType.valueOf(
+                System.getProperty("spring.main.web-application-type", "NONE")
         );
+        if (webApplicationType == WebApplicationType.NONE) {
+            // https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-application-exit
+            Runtime.getRuntime().exit(
+                    SpringApplication.exit(SpringApplication.run(KeycloakConfigApplication.class, args))
+            );
+        } else {
+            SpringApplication.run(KeycloakConfigApplication.class, args);
+        }
     }
 }

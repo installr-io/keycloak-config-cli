@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -eo pipefail
+
+echo -n "Determining project version... "
+VERSION=$(mvn -q help:evaluate -DforceStdout -Dexpression=project.version)
+echo ${VERSION}
+
+INCLUDES=(
+    pom.xml
+    src/
+)
+echo -n "Generation patch... "
+git diff -p v${VERSION} -- ${INCLUDES[@]} > deployer.patch
+echo "done"
