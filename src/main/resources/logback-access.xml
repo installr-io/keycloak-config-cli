@@ -1,0 +1,17 @@
+<configuration>
+    <!-- default access log 'common' format (for reference) -->
+    <property name="COMMON_PATTERN" value='%h %l %u [%t] "%r" %s %b'/>
+    <!-- default access log 'combined' format -->
+    <property name="COMBINED_PATTERN" value='%h %l %u [%t] "%r" %s %b "%i{Referer}" "%i{User-Agent}"'/>
+
+    <!-- combined format extended with thread name and elapsed time in ms -->
+    <property name="CUSTOM_PATTERN" value="${COMBINED_PATTERN} | [%I] %T{}ms"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.access.PatternLayoutEncoder">
+            <pattern>%yellow(${CUSTOM_PATTERN})</pattern>
+		</encoder>
+	</appender>
+
+	<appender-ref ref="STDOUT" />
+</configuration>

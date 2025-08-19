@@ -1,0 +1,8 @@
+//@realm=TESTrealm
+{
+    "clientId": "TESTclient",
+    "publicClient": false,
+    "standardFlowEnabled": false,
+    "serviceAccountsEnabled": true,
+    "enabled": true
+}

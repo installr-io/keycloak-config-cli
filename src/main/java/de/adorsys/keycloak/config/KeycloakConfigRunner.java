@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,7 @@ import java.util.Map;
  */
 @ConditionalOnProperty(prefix = "run", name = "operation", havingValue = "IMPORT", matchIfMissing = true)
 @EnableConfigurationProperties({ImportConfigProperties.class, KeycloakConfigProperties.class})
+@ConditionalOnNotWebApplication
 public class KeycloakConfigRunner implements CommandLineRunner, ExitCodeGenerator {
     private static final Logger logger = LoggerFactory.getLogger(KeycloakConfigRunner.class);
     private static final long START_TIME = System.currentTimeMillis();
