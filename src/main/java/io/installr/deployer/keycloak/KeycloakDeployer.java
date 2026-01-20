@@ -37,6 +37,7 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ import de.adorsys.keycloak.config.properties.KeycloakConfigProperties;
 import de.adorsys.keycloak.config.provider.KeycloakProvider;
 import de.adorsys.keycloak.config.service.ClientImportService;
 import de.adorsys.keycloak.config.service.RealmImportService;
+import de.adorsys.keycloak.config.service.UserImportService;
 import io.installr.lib.deployer.Deployer;
 import io.installr.lib.deployer.DeploymentSpec;
 import io.installr.lib.deployer.DeploymentException;
@@ -68,6 +70,7 @@ public class KeycloakDeployer implements Deployer {
     ,   Role  ( "application/vnd.io.installr.kc-role"   )
     ,   Client( "application/vnd.io.installr.kc-client" )
     ,   Scope ( "application/vnd.io.installr.kc-scope"  )
+    ,   User  ( "application/vnd.io.installr.kc-user"   )
     ;
 
         final String mediaTypeString;
@@ -98,6 +101,9 @@ public class KeycloakDeployer implements Deployer {
     ClientImportService clientImportService;
 
     @Autowired
+    UserImportService userImportService;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @PostConstruct
@@ -113,6 +119,7 @@ public class KeycloakDeployer implements Deployer {
                 case Role   : deployRole  ( json, spec.getEnv() ); break;
                 case Client : deployClient( json, spec.getEnv() ); break;
                 case Scope  : deployScope ( json, spec.getEnv() ); break;
+                case User   : deployUser  ( json, spec.getEnv() ); break;
                 default:
                     throw new DeploymentException( "Unsupported media type: %s", mediaType );
             }
@@ -127,6 +134,7 @@ public class KeycloakDeployer implements Deployer {
                 case Role   : undeployRole  ( json, spec.getEnv() ); break;
                 case Client : undeployClient( json, spec.getEnv() ); break;
                 case Scope  : undeployScope ( json, spec.getEnv() ); break;
+                case User   : undeployUser  ( json, spec.getEnv() ); break;
                 default:
                     throw new DeploymentException( "Unsupported media type: %s", mediaType );
             }
@@ -276,6 +284,40 @@ public class KeycloakDeployer implements Deployer {
         }
     }
     
+    private void deployUser( String json, Map<String, String> env ) throws IOException {
+        final String realm = extractRealm( json, env.get( REALM_ATTR ) );
+        logger.info( "Deploying user to realm '{}'", realm );
+        
+        final UserRepresentation ur = objectMapper.readValue( json, UserRepresentation.class );;
+
+        final RealmRepresentation rr = new RealmRepresentation();
+        rr.setRealm( realm );
+        rr.setUsers( List.of( ur ) );
+        
+        final String clientJson = objectMapper.writeValueAsString( rr );
+        RealmImport ri = objectMapper.readValue( clientJson, RealmImport.class );
+        ri.setChecksum( DigestUtils.sha256Hex( clientJson ) );
+        userImportService.doImport( ri );
+    }
+
+    private void undeployUser( String json, Map<String, String> env ) throws IOException {
+        final String realm = extractRealm( json, env.get( REALM_ATTR ) );
+        logger.info( "Un-deploying user from realm '{}'", realm );
+        final Keycloak kc = keycloakProvider.getInstance();
+        UserRepresentation ur = objectMapper.readValue( json, UserRepresentation.class );
+        if ( ur.getId() == null ) {
+            final List<UserRepresentation> search = kc.realm( realm ).users().search( ur.getUsername(), Boolean.TRUE );
+            if ( search.isEmpty() ) {
+                throw new DeploymentException( "User with username '%s' not found.", ur.getUsername() );
+            }
+            if ( search.size() > 1 ) {
+                throw new DeploymentException( "Duplicate users found: %s.", ur.getUsername() );
+            }
+            ur = search.getFirst();
+        }
+        kc.realm( realm ).users().get( ur.getId() ).remove();
+    }
+
     private String extractRealm( String json, String defaultRealm ) {
         final Pattern pattern = Pattern.compile( "//\s*@realm=(.*)" );
         final String firstLine = json.split( "\r?\n" )[0];
