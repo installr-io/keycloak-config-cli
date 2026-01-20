@@ -22,6 +22,7 @@ java -Dspring.main.web-application-type=SERVLET -jar ./target/keycloak-config-cl
 
 ## Test
 ### deploy
+#### Realm
 ```
 curl -isSLX PUT \
     -H 'Content-Type: multipart/form-data' \
@@ -32,6 +33,7 @@ curl -isSLX PUT \
     'http://localhost:8080/Deployer.deploy/test.realm.json'
 ```
 
+#### Client
 ```
 curl -isSLX PUT \
     -H 'Content-Type: multipart/form-data' \
@@ -41,7 +43,31 @@ curl -isSLX PUT \
     -F 'encoding=UTF-8' \
     'http://localhost:8080/Deployer.deploy/test.client.json'
 ```
+
+#### User
+```
+curl -isSLX PUT \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'data=@test.user.json' \
+    -F 'media-type=application/vnd.io.installr.kc-user' \
+    -F 'env={"keycloak.url":"<KEYCLOAK_URL>","keycloak.user":"<KEYCLOAK_USER>","keycloak.password":"<KEYCLOAK_PASSWORD>"};type=application/json' \
+    -F 'encoding=UTF-8' \
+    'http://localhost:8080/Deployer.deploy/test.user.json'
+```
+
+#### Service-Account-User
+```
+curl -isSLX PUT \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'data=@test.service-account-user.json' \
+    -F 'media-type=application/vnd.io.installr.kc-user' \
+    -F 'env={"keycloak.url":"<KEYCLOAK_URL>","keycloak.user":"<KEYCLOAK_USER>","keycloak.password":"<KEYCLOAK_PASSWORD>"};type=application/json' \
+    -F 'encoding=UTF-8' \
+    'http://localhost:8080/Deployer.deploy/test.service-account-user.json'
+```
+
 ### undeploy
+#### Realm
 ```
 curl -isSLX DELETE \
     -H 'Content-Type: multipart/form-data' \
@@ -52,6 +78,7 @@ curl -isSLX DELETE \
     'http://localhost:8080/Deployer.undeploy/test.realm.json'
 ```
 
+#### Client
 ```
 curl -isSLX DELETE \
     -H 'Content-Type: multipart/form-data' \
@@ -60,6 +87,28 @@ curl -isSLX DELETE \
     -F 'env={"keycloak.url":"<KEYCLOAK_URL>","keycloak.user":"<KEYCLOAK_USER>","keycloak.password":"<KEYCLOAK_PASSWORD>"};type=application/json' \
     -F 'encoding=UTF-8' \
     'http://localhost:8080/Deployer.undeploy/test.client.json'
+```
+
+#### User
+```
+curl -isSLX DELETE \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'data=@test.user.json' \
+    -F 'media-type=application/vnd.io.installr.kc-user' \
+    -F 'env={"keycloak.url":"<KEYCLOAK_URL>","keycloak.user":"<KEYCLOAK_USER>","keycloak.password":"<KEYCLOAK_PASSWORD>"};type=application/json' \
+    -F 'encoding=UTF-8' \
+    'http://localhost:8080/Deployer.undeploy/test.user.json'
+```
+
+#### Service-Account-User
+```
+curl -isSLX DELETE \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'data=@test.service-account-user.json' \
+    -F 'media-type=application/vnd.io.installr.kc-user' \
+    -F 'env={"keycloak.url":"<KEYCLOAK_URL>","keycloak.user":"<KEYCLOAK_USER>","keycloak.password":"<KEYCLOAK_PASSWORD>"};type=application/json' \
+    -F 'encoding=UTF-8' \
+    'http://localhost:8080/Deployer.undeploy/test.service-account-user.json'
 ```
 
 ## Make patch
