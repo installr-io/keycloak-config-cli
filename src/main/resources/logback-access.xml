@@ -8,10 +8,11 @@
     <property name="CUSTOM_PATTERN" value="${COMBINED_PATTERN} | [%I] %T{}ms"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.access.PatternLayoutEncoder">
+        <encoder class="ch.qos.logback.access.PatternLayoutEncoder">
             <pattern>%yellow(${CUSTOM_PATTERN})</pattern>
-		</encoder>
-	</appender>
+        </encoder>
+        <target>System.out</target>
+    </appender>
 
 	<appender-ref ref="STDOUT" />
 </configuration>
